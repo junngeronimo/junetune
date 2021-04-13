@@ -10,17 +10,17 @@ Currently in **very early** production. Hoping to get incremental progress on th
 
 ![Image of todoList](src/assets/tuneJunn_rev0.png)
 
-* Ask user for permission to access mic.
-* Capture audio as input.
-* Process audio data into numerical frequency.
-* Convert frequency into a roman musical note along with octave.
-* Display musical note along with octave .
-* Set a default instrument (guitar) for target tuning frequencies (EADGBE).
-* Compare input audio with range of frequencies in current instrument.
-* Display a match if close.
-* Display distance away from closest heard frequency.
-* Add in different instrument tunings.
-* Use cookies to remember what the user picked.
-* Allow user to pick own tuning.
-* THERE WILL BE MORE.
+1. Ask user for permission to access mic.
+2. Capture audio as input.
+3. Process audio data into numerical frequency.
+4. Convert frequency into a roman musical note along with octave.
+5. Display musical note along with octave .
+6. Set a default instrument (guitar) for target tuning frequencies (EADGBE).
+7. Compare input audio with range of frequencies in current instrument.
+8. Display a match if close.
+9. Display distance away from closest heard frequency.
+10. Add in different instrument tunings.
+11. Use cookies to remember what the user picked.
+12. Allow user to pick own tuning.
+13. THERE WILL BE MORE.
 
