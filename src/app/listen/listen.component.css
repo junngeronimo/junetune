@@ -1,0 +1,10 @@
+.todoList {
+    background-color: lightgray;
+    font-size: 150%;
+    font-family:'Courier New', Courier, monospace;
+    list-style-type: decimal;
+}
+
+.todoItem {
+    font-style: italic;
+}

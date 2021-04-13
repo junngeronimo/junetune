@@ -1,0 +1,30 @@
+<h2>Choose your instrument: </h2>
+
+<div>
+    <ul>
+        <li *ngFor="let instrument of instruments" (click)="onSelect(instrument)">
+            <span class="instrument-icon">{{instrument.id}}</span> {{instrument.name}}
+        </li>
+    </ul>
+</div>
+
+<div *ngIf="selectedInstrument">
+
+    <h2>{{selectedInstrument.name | uppercase}} Details</h2>
+    <div><span>id: </span>{{selectedInstrument.id}}</div>
+    <div>
+      <label for="instrument-name">Instrument name: </label>
+      <input id="instrument-name" [(ngModel)]="selectedInstrument.name" placeholder="name">
+    </div>
+  
+</div>
+
+<div>
+    <hr>
+        <ul class="todoList">
+            <h3>TODO List</h3>
+            <li *ngFor="let todo of todos">
+                <span class="todoItem">{{todo.item}}</span>
+            </li>
+        </ul>
+</div>
