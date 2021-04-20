@@ -1,10 +1,29 @@
+
+
+
+
+
+
+/* TODO LIST STYLING */
 .todoList {
-    background-color: lightgray;
-    font-size: 150%;
+    background-color: #004058;
     font-family:'Courier New', Courier, monospace;
     list-style-type: decimal;
+    width: 30em;
 }
 
 .todoItem {
-    font-style: italic;
+    position: relative;
+    left: .1em;
+    cursor: pointer;
+}
+
+.todoItem:hover {
+    color: #2c3a41;
+    background-color: #e6e6e6; 
+}
+
+.todoItem:active {
+    background-color: #525252;
+    color: #fafafa;
 }
