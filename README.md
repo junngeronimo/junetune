@@ -10,7 +10,7 @@ Currently in **very early** production. Hoping to get incremental progress on th
 
 ![Image of todoList](src/assets/tuneJunn_rev0.png)
 
-![rev1](src/assets/tuneJunn_rev1 2021-04-20 at 1.43.02 AM.png)
+![rev1](src/assets/tuneJunn_rev1.png)
 
 1. Ask user for permission to access mic.
 2. Capture audio as input.
