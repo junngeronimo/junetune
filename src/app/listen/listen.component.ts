@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Instrument } from '../instrument';
-import { INSTRUMENTS, TODOS } from '../instruments';
+import { INSTRUMENTS } from '../instruments';
 
 @Component({
   selector: 'app-listen',
@@ -8,8 +8,6 @@ import { INSTRUMENTS, TODOS } from '../instruments';
   styleUrls: ['./listen.component.css']
 })
 export class ListenComponent implements OnInit {
-
-  todo = TODOS;
 
   selectedInstrument?: Instrument;
   onSelect(instrument: Instrument): void {
