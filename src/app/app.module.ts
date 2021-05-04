@@ -7,7 +7,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ListenComponent } from './listen/listen.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
-import { TodoListComponent } from './todo-list/todo-list.component'; // <-- NgModel lives here
+import { TodoListComponent } from './todo-list/todo-list.component';
+import { InstrumentsComponent } from './instruments/instruments.component'; // <-- NgModel lives here
 
 
 @NgModule({
@@ -15,7 +16,8 @@ import { TodoListComponent } from './todo-list/todo-list.component'; // <-- NgMo
     AppComponent,
     ListenComponent,
     DashboardComponent,
-    TodoListComponent
+    TodoListComponent,
+    InstrumentsComponent
   ],
   imports: [
     BrowserModule,

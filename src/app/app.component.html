@@ -1,9 +1,33 @@
-<h1>{{title}}</h1>
-<nav>
-    <a routerLink='/dashboard'>Home</a>
-    <a routerLink='/listen'>All Instruments</a>
-</nav>
+<!-- Navigation -->
+<header class="bg-white shadow">
+    <div class="relative">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-start items-center border-b-2 border-gray-100 py-6 md:justify-start md:space-x-10">
+                <div class="flex justify-start lg:w-0 lg:flex-1">
+                    <!-- header image -->
+                    <a href='/dashboard'>
+                        <img class="w-auto h-48 lg:hidden rounded-full" src="../assets/JuneTuneLogo.png"
+                            alt="Mandolin Logo by Angie Lopez">
+                    </a>
+                </div>
+
+                <nav class="md:flex space-x-10">
+                    <div class="relative">
+                        <button><a routerLink='/dashboard'>Home </a></button>
+                        <button><a routerLink='/instruments'>All Instruments </a></button>
+                        <button><a routerLink='/dashboard'>About </a></button>
+                        <button><a routerLink='/instruments'>Contact </a></button>
+                    </div>
+                </nav>
+
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+
 <router-outlet></router-outlet>
 <app-todo-list></app-todo-list>
-<!-- <app-listen></app-listen> -->
-

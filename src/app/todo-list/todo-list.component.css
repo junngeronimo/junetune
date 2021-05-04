@@ -1,6 +1,6 @@
-/* TODO LIST STYLING */
+/* TODO LIST STYLING
 .todoList {
-    background-color: #004058;
+    background-color: whitesmoke;
     font-family:'Courier New', Courier, monospace;
     list-style-type: decimal;
     width: 30em;
@@ -20,4 +20,4 @@
 .todoItem:active {
     background-color: #525252;
     color: #fafafa;
-}
+} */

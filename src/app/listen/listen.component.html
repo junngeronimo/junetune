@@ -1,22 +1,23 @@
-<h2>Choose your instrument: </h2>
 
-<div>
-    <ul>
-        <li *ngFor="let instrument of instruments" (click)="onSelect(instrument)">
-            <span class="instrument-icon">{{instrument.id}}</span> {{instrument.name}}
-        </li>
-    </ul>
+<!-- text-base text-yellow-700 font-semibold tracking-wide uppercase justify-start relative -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex-row space-x-10">
+    <div><p class="uppercase font-bold text-gray-900 ">Instrument: {{currentInstrument.name}}</p></div>
+    <p class="uppercase font-bold text-gray-900">Tuning: {{currentInstrument.tuning}}</p>
+            
 </div>
 
-<div *ngIf="selectedInstrument">
-
-    <h2>{{selectedInstrument.name | uppercase}} Details</h2>
-    <div><span>id: </span>{{selectedInstrument.id}}</div>
-    <div>
-      <label for="instrument-name">Instrument name: </label>
-      <input id="instrument-name" [(ngModel)]="selectedInstrument.name" placeholder="name">
+<main>
+    
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Replace with your content -->
+        <div class="px-4 py-6 sm:px-0">
+            <div class="border-4 border-gray-200 rounded-lg h-96 flex-row space-y-2">
+                <h2 class="font-semibold">Standard Tuning: </h2><p>{{currentNote.notation}}, frequency: {{currentNote.frequency}}, wavelength: {{currentNote.wavelength}}</p>
+                
+                <h2 class="font-semibold">Tuning for: </h2> <p>{{currentInstrument.tuningOctaves}}</p>
+            </div>
+        </div>
+        <!-- /End replace -->
     </div>
-  
-</div>
-
+</main>
 
