@@ -27,13 +27,15 @@ I've coded in finding the frequency of the note if given the amount of half step
 Note: I will eventually move all this stuff to a blog and provide more useful information at another time.
 
 
-## TODOs
+## Visual Progress
 
 ![Image of todoList](src/assets/tuneJunn_rev0.png)
-
 ![rev1](src/assets/tuneJunn_rev1.png)
 ![rev2](src/assets/tuneJunn_rev2.png)
 
+## TODOs
+
+A little breakdown of what I think needs to be done. I like to plaster it everywhere so I can't avoid it.
 
 1. Ask user for permission to access mic.
 2. Capture audio as input.
