@@ -75,9 +75,9 @@ scripts/code.angularjs.org-firebase/deploy
 scripts/docs.angularjs.org-firebase/deploy
 scripts/docs.angularjs.org-firebase/functions/content
 
-.browserslistrc
-karma.conf.js
-tsconfig.app.json
-tsconfig.json
-tsconfig.spec.json
-tslint.json
+/.browserslistrc
+/karma.conf.js
+/tsconfig.app.json
+/tsconfig.json
+/tsconfig.spec.json
+/tslint.json
