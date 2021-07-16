@@ -8,5 +8,5 @@ export const INSTRUMENTS: Instrument[] = [
   { id: 15, name: 'Violin', tuning: 'GDAE', tuningOctaves: ['G3', 'D4', 'A4', 'E5'] },
   { id: 16, name: 'Bass', tuning: 'EADG', tuningOctaves: ['E1', 'A1', 'D2', 'G2'] },
   { id: 17, name: 'Cello', tuning: 'CGDA', tuningOctaves: ['C2', 'G2', 'D3', 'A3'] },
-  { id: 18, name: 'Custom', tuning: '', tuningOctaves: ['G4', 'D3', 'G3', 'B3', 'D4'] }
+  { id: 18, name: 'Custom', tuning: '', tuningOctaves: [] }
 ];

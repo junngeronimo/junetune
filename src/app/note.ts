@@ -7,6 +7,6 @@ export class Note {
     wavelength: number = 0;
 
     aboutMe() {
-        return `Hi, I'm ${this.notation}, frequency ${this.frequency} and from ${this.wavelength}`;
+        return `Hi, I'm${this.notation}, frequency: ${this.frequency} and wavelength: ${this.wavelength}`;
     }
 }

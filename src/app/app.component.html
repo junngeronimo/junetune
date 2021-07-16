@@ -6,17 +6,18 @@
                 <div class="flex justify-start lg:w-0 lg:flex-1">
                     <!-- header image -->
                     <a href='/dashboard'>
-                        <img class="w-auto h-48 lg:hidden rounded-full" src="../assets/JuneTuneLogo.png"
+                        <img class="w-auto h-24 lg:hidden rounded-full" src="../assets/JuneTuneLogo.png"
                             alt="Mandolin Logo by Angie Lopez">
                     </a>
                 </div>
 
+                <!-- Nav bar -->
                 <nav class="md:flex space-x-10">
                     <div class="relative">
-                        <button><a routerLink='/dashboard'>Home </a></button>
-                        <button><a routerLink='/instruments'>All Instruments </a></button>
-                        <button><a routerLink='/dashboard'>About </a></button>
-                        <button><a routerLink='/instruments'>Contact </a></button>
+                        <button><a routerLink='/dashboard'>Home</a></button>
+                        <button><a routerLink='/instruments'>All Instruments</a></button>
+                        <button><a routerLink='/dashboard'>About</a></button>
+                        <button><a routerLink='/todo-list'>To-Do List</a></button>
                     </div>
                 </nav>
 
@@ -30,4 +31,3 @@
 
 
 <router-outlet></router-outlet>
-<app-todo-list></app-todo-list>

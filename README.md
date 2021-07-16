@@ -18,7 +18,7 @@ I am navigating object oriented programming practices using Angular.JS. To pract
 
 Right now, I have the formula for finding the frequency of notes relative to a base note. 
 
-fn = f0 * (a)n
+fn = f0 * (a)^n
 
 Credits to [Michigan Technological University](https://pages.mtu.edu/~suits/NoteFreqCalcs.html) for the information. 
 
