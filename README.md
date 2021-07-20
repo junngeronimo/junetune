@@ -1,6 +1,6 @@
 # TuneJunn
 
-Lightweight web app instrument tuner built with Angular.js
+Web app instrument tuner built with Angular.js.
 
 ## About
 
