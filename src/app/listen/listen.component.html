@@ -11,30 +11,38 @@
 <main>
     <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div class="px-4 py-6 sm:px-0">
-            <div class="border-4 border-gray-200 rounded-lg h-96 flex-row space-y-2">
+            <div class="border-4 border-gray-200 rounded-lg h-112 flex-row space-y-2">
                 
-                <!-- <h2 class="font-semibold">Standard Tuning: </h2>
-                <p>{{currentNote.notation}}, frequency: {{currentNote.frequency}}, wavelength: {{currentNote.wavelength}}</p>
+                <!-- DISPLAYING FREQUENCY TO NOTE CALC HERE -->
+                <h2 class="font-semibold">Standard Tuning: </h2>
+                <p>{{currentNote.notation}}, frequency: {{currentNote.frequency}} Hz</p>
+
+                <h2 class="font-semibold">Tuning for: {{currentInstrument.tuningOctaves}}</h2> 
+                
+                <form>
+
+                    <label>Desired half steps away from A4 (440 Hz):
+                        <input class="border-2 m-4" type="number" name="freq-input" [(ngModel)]="halfSteps" min="-57" max="50" value="halfSteps" (ngModelChange)="calculateFreqFromHalfSteps(halfSteps)">
+                    </label>
+                    <p>Freq of {{halfSteps}} half steps: {{calculateFreqFromHalfSteps(halfSteps)}}</p>
+
+                </form>
 
                 <br>
 
-                <h2 class="font-semibold">Tuning for: </h2> 
-                <p>{{currentInstrument.tuningOctaves}}</p>
-                <p>Freq of -9 half steps: {{calcNoteTest}}</p>
-
-                <br> -->
-
                 <!-- CAPTURE AUDIO HERE -->
-                <h2 class="font-semibold">I am hearing: </h2> 
+                <h2 class="font-semibold">I am hearing YOU: </h2> 
                 <audio id="player" controls></audio>
                 
-                <input type="range" min="1" max="40">
+                <input type="range" min="1" max="40" >
 
-                <pre></pre>
-
-                <p>Biquad filter frequency response for: </p>
+                <!-- <p>Biquad filter frequency response for: </p>
                 <ul class="freq-response-output">
-                </ul>
+                </ul> -->
+
+                <p>Your frequency response: </p>
+                <p class="user-freq-response-output">
+                </p>
 
                 <!-- <p>Volume</p>
                 <input id="volume" type="range" min="0" max="1" step="0.1" value="0.5"/>         -->

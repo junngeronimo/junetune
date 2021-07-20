@@ -9,4 +9,21 @@ export class Note {
     aboutMe() {
         return `Hi, I'm${this.notation}, frequency: ${this.frequency} and wavelength: ${this.wavelength}`;
     }
+
+    constructor(note: string, freq: number, wave: number) {
+        this.notation = note;
+        this.frequency = freq;
+        this.wavelength = wave;
+    }
+
+    getNote(): string {
+        return this.notation;
+    }
+
+    getFrequency(): number {
+        return this.frequency;
+    }
+
 }
+
+
