@@ -5,13 +5,14 @@ export interface todo {
   }
   
   export const TODOS: todo[] = [
-  { item: "Ask user for permission to access mic.", description: "" },
-  { item: "Capture audio as input.", description: ""  },
-  { item: "Process audio data into numerical frequency.", description: ""  },
-  { item: "Convert frequency into a roman musical note along with octave.", description: ""  },
-  { item: "Display musical note along with octave .", description: ""  },
-  { item: "Set a default instrument (guitar) for target tuning frequencies (EADGBE).", description: ""  },
-  { item: "Compare input audio with range of frequencies in current instrument.", description: ""  },
+  { item: "Implement system to determine input note's closest target note", description: "" },
+  { item: "FINISHED - Ask user for permission to access mic.", description: "" },
+  { item: "FINISHED - Capture audio as input.", description: ""  },
+  { item: "IN PROGRESS - Process audio data into numerical frequency.", description: ""  },
+  { item: "FINISHED - Convert frequency into a musical note along with octave.", description: ""  },
+  { item: "FINISHED - Display musical note along with octave .", description: ""  },
+  { item: "IN PROGRESS - Set a default instrument (guitar) for target tuning frequencies (EADGBE).", description: ""  },
+  { item: "IN PROGRESS - Compare input audio with range of frequencies in current instrument.", description: ""  },
   { item: "Display a match if close.", description: ""  },
   { item: "Display distance away from closest heard frequency.", description: ""  },
   { item: "Add in different instrument tunings.", description: ""  },
