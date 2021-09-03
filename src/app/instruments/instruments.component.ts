@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Instrument } from '../instrument';
-import { INSTRUMENTS } from '../instruments';
+import { Instrument, INSTRUMENTS } from '../instrument';
 
 @Component({
   selector: 'app-instruments',

@@ -1,8 +1,13 @@
 import { Note } from './note';
 
+
 export class Scale {
   notes:any = new Object();
   reverseNotes:any = new Object();
+
+  constructor() {
+
+  }
 
   addNote(note: Note) {
     let freq:string = (note.getFrequency()).toString();
@@ -15,11 +20,29 @@ export class Scale {
     return Object.keys(this.notes);
   }
 
-  getAllNotes() {
-    return Object.keys(this.reverseNotes)
+  getAllNoteNames() {
+    if (Object.keys(this.reverseNotes).length === 0) { 
+      this.getNoteFreqPairs();
+    }
+    return Object.keys(this.reverseNotes);
   }
 
-  getNotes() {
+  // Will turn reversedNotes into a Note: Frequency, key/val pair array
+  getNoteFreqPairs() {   
+    
+    let allNotes:any = Object.values(this.notes);
+    let allFreqs:any = this.getAllFrequencies();
+
+    for (let i = 0; i < allNotes.length; i++) {
+      let currNote = allNotes[i].Note;
+      this.reverseNotes[currNote] = allFreqs[i];
+    }
+
+    return this.reverseNotes;
+
+  }
+
+  getScale() {
     return this.notes;
   }
 
@@ -30,34 +53,41 @@ export class Scale {
 
   // find a note name using frequency value
   findNoteUsingFrequency(freq: string) {
-    return this.notes[freq];
+    return this.notes[freq].Note;
   }
 
   // update reversed key/value pairs and find note
   findFrequencyUsingNote(note: string) {
-    // this.reverseNotes = this.reverseNoteObjects();
     return this.reverseNotes[note];
   }
 
   // reverse key/value pairs
-  private reverseNoteObjects(): any {
-    return Object.keys(this.notes).reduce((ret:any, key) => {
-      ret[this.notes[key]] = key;
+  reverseNoteObjects():any[] {
+    return Object.entries(this.notes).reduce((ret:any, entry) => {
+      const [key, value]:any = entry;
+      ret[value] = key;
       return ret;
     }, {});
+
   }
 
-  constructor() {
-    this.reverseNotes = this.reverseNoteObjects();
-  }
+
 
   
 }
+
+// this.notes looks like {
+  // {"frequency": 440 Hz
+    //   { Note: A4 , 
+    //     Wavelength (cm): xx 
+      // }: 
+  // }}
 
 export class eQScale extends Scale {
 
   constructor() {
     super()
+    // init with the Equal Temperament Scale
     this.notes =  {
       "49": {
         "Note": "G1",
@@ -492,26 +522,27 @@ export class eQScale extends Scale {
         "Wavelength (cm)": 4.37
       }
     };
+    this.getNoteFreqPairs();
+    // this.reverseNotes = this.reverseNoteObjects();
+  }
+
+  // getAllFrequencies() {
+  //   return super.getAllFrequencies()
+  // }
+
+  // getAllNotes() {
+  //   return super.getNoteNames()
+  // }
+
+  // findNoteUsingFrequency(freq:string) {
     
-  }
-
-  getAllFrequencies() {
-    return super.getAllFrequencies()
-  }
-
-  getAllNotes() {
-    return super.getAllNotes()
-  }
-
-  findNoteUsingFrequency(freq:string) {
-    
-    return this.notes[freq];
-  }
+  //   return this.notes[freq];
+  // }
 
   // update reversed key/value pairs and find note
-  findFrequencyUsingNote(note: string) {
-    // this.reverseNotes = this.reverseNoteObjects();
-    return this.reverseNotes[note];
-  }
+  // findFrequencyUsingNote(note: string) {
+  //   this.reverseNotes = super.reverseNoteObjects();
+  //   return this.reverseNotes[note];
+  // }
 
 }

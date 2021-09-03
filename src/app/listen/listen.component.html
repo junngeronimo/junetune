@@ -9,42 +9,65 @@
 </div>
 
 <main>
-    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 center">
         <div class="px-4 py-6 sm:px-0">
-            <div class="border-4 border-gray-200 rounded-lg h-112 flex-row space-y-2">
+            <div class="border-4 border-gray-200 rounded-lg h-112 flex-row space-y-2 px-2 py-2">
                 
                 <!-- DISPLAYING FREQUENCY TO NOTE CALC HERE -->
-                <h2 class="font-semibold">Standard Tuning: </h2>
-                <p>{{currentNote.notation}}, frequency: {{currentNote.frequency}} Hz</p>
 
-                <h2 class="font-semibold">Tuning for: {{currentInstrument.tuningOctaves}}</h2> 
+                <!-- DISPLAYING Standard Tuning specification -->
+                <h2 class="font-semibold underline">Standard Tuning: </h2>
+                <p class="px-6">{{currentNote.notation}}, frequency: {{currentNote.frequency}} Hz</p>
+
+                <!-- Current instrument and tuning-->
+                <div class ="border-2 m-64 text-center rounded-lg border-yellow-600">
+                <h2 class="font-semibold underline">Tuning for {{currentInstrument.name}}: </h2>
+                    <div class="grid grid-flow-col grid-rows-3 place-items-center ">
+                        <div class="text-justify" *ngFor="let item of currentInstrument.tuningOctaves">
+                            {{item}} - {{equalTempScale.findFrequencyUsingNote(item)}} hz 
+                        </div>
+                    </div>
+                </div>
                 
-                <form>
-
-                    <label>Desired half steps away from A4 (440 Hz):
-                        <input class="border-2 m-4" type="number" name="freq-input" [(ngModel)]="halfSteps" min="-57" max="50" value="halfSteps" (ngModelChange)="calculateFreqFromHalfSteps(halfSteps)">
+                <!-- Halfsteps calculation and input -->    
+                <form class ="border-2 m-64 text-center rounded-lg border-yellow-600">
+                    <label>Input half steps away from A4 (440 Hz):
+                        <input class="border-2 border-green-600 text-center m-2" 
+                                type="number" 
+                                name="freq-input" 
+                                [(ngModel)]="halfSteps" 
+                                min="-57" 
+                                max="50" 
+                                value="halfSteps" >
+                        <p>Freq of {{halfSteps}} half steps from A4: </p>
+                        <p class="font-semibold">{{calculateFreqFromHalfSteps(halfSteps)}}</p>
                     </label>
-                    <p>Freq of {{halfSteps}} half steps: {{calculateFreqFromHalfSteps(halfSteps)}}</p>
-
                 </form>
 
-                <br>
 
                 <!-- CAPTURE AUDIO HERE -->
+                <!-- Media Player and input output devices-->    
                 <h2 class="font-semibold">I am hearing YOU: </h2> 
                 <audio id="player" controls></audio>
+                <p id=".audioDevices"></p>
+
+                <br>
                 
-                <input type="range" min="1" max="40" >
+                <!-- BiquadFilter volume range input -->    
+                <label>
+                    <p>For BiquadFilter</p>
+                    <input id="audioVol" type="range" min="1" max="40" >
+                </label>    
 
-                <!-- <p>Biquad filter frequency response for: </p>
-                <ul class="freq-response-output">
-                </ul> -->
-
+                <!-- Display user's true frequency -->    
                 <p>Your frequency response: </p>
-                <p class="user-freq-response-output">TODO - I convert your audio to frequency</p>
-                
-                <!-- <p>Volume</p>
-                <input id="volume" type="range" min="0" max="1" step="0.1" value="0.5"/>         -->
+                <form>
+                    <p id="user-freq-response-output">
+                        
+                        {{analyser ? analyser.fftSize : "" }}
+                    
+                    </p>
+                </form>
 
             </div>
         </div>
