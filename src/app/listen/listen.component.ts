@@ -121,7 +121,7 @@ export class ListenComponent implements OnInit {
     let tolerance = 0.001;
     let rms = 0;
     let rmsMin = 0.08;
-    let assesssedStringsInLastFrame 
+    let assesssedStringsInLastFrame;
   }
   
   captureFreq() {
