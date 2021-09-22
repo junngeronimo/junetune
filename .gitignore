@@ -81,3 +81,6 @@ scripts/docs.angularjs.org-firebase/functions/content
 /tsconfig.json
 /tsconfig.spec.json
 /tslint.json
+
+.editorconfig
+angular.json
