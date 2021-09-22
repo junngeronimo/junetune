@@ -87,8 +87,7 @@ export class ListenComponent implements OnInit {
     mysteryNote = nFreq.toString();
 
     // Format Note name and freq (Hz)
-    const calcNote = `${this.equalTempScale.findNoteUsingFrequency(mysteryNote)} (${mysteryNote} Hz)`;
-    return calcNote;
+    return `${this.equalTempScale.findNoteUsingFrequency(mysteryNote)} (${mysteryNote} Hz)`;;
   } // --calculateNote()
 
   autoCorrelateAudioData(time: any): void {
@@ -102,8 +101,11 @@ export class ListenComponent implements OnInit {
     let difference = 0;
     let tolerance = 0.001;
     let rms = 0;
-    let rmsMin = 0.08;
+    let rmsMin = 0.008;
     let assesssedStringsInLastFrame;
+
+    // fill up the data
+    this.analyser.getFloatTimeDomainData(this.freqArray)
   }
 
   captureFreq(): void {
