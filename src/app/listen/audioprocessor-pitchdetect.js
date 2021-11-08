@@ -206,6 +206,7 @@
        // Go through each string and figure out which is the most
        // likely candidate for the string being tuned based on the
        // difference to the "perfect" tuning.
+       // TODO
        for (let o = 0; o < this.stringsKeys.length; o++) {
  
          offsetKey = this.stringsKeys[o];

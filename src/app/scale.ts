@@ -2,11 +2,12 @@ import { Note } from './note';
 
 
 export class Scale {
-  notes:any = new Object();
-  reverseNotes:any = new Object();
+  notes:any;
+  reverseNotes:any
 
   constructor() {
-
+    this.notes = new Object();
+    this.reverseNotes = new Object();
   }
 
   addNote(note: Note) {

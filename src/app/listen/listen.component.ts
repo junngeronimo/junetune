@@ -14,6 +14,8 @@ import adapter from 'webrtc-adapter';
 export class ListenComponent implements OnInit {
   popularInstruments = INSTRUMENTS; // INSTRUMENTS contains some default tunings
   currentInstrument = this.popularInstruments[0];   // Default to guitar
+  currentTuning:any;
+  currentKeys:any;
 
   // 0th pos. of EqualTemperedScale
   currentNote = Object.assign(new Note('A4', 440.00, 78.41));
@@ -28,19 +30,32 @@ export class ListenComponent implements OnInit {
   equalTempScale;
 
   // audio stuff
-  // COMPLETED: USING DRAW()! TODO: init something that has changing data constantly
   audioCtx: any;
   source: any;
   stream: any;
   analyser: any;
   gainNode: any;
-  // myFrequencyArray:any;
+  sendingAudioData: any;
+  // freqBuffer
   freqArray: any;
-  i = 0;
+  updateFrames = 0;
+  // audio buffer stuff
+  lastRms = 0;
+  rmsThreshold = 0.006;
+  assessedStringsInLastFrame = false;
+  assessStringsUntilTime = 0;
 
   constructor() {
     this.equalTempScale = new eQScale();
     this.captureAudio();
+
+    for (let note of this.currentInstrument.tuningOctaves) {
+      this.currentTuning[note] = {
+        offset: Math.round(this.audioCtx.sampleRate / this.equalTempScale.findFrequencyUsingNote(note)),
+        difference: 0
+      }
+    }
+    this.currentKeys = Object.keys(this.currentTuning);
   }
 
   ngOnInit(): void {
@@ -56,7 +71,7 @@ export class ListenComponent implements OnInit {
 
   calculateNoteFromFrequency(freq: number): string {
 
-    return 'TODO: noteName';
+    return this.equalTempScale.findNoteUsingFrequency(freq.toString());
   }
 
   /**
@@ -90,9 +105,13 @@ export class ListenComponent implements OnInit {
     return `${this.equalTempScale.findNoteUsingFrequency(mysteryNote)} (${mysteryNote} Hz)`;;
   } // --calculateNote()
 
-  autoCorrelateAudioData(time: any): void {
+  sortStringKeysByDifference(a:string, b:string): number {
+    return this.currentTuning[a].difference - this.currentTuning[b].difference;
+  }
 
-    // Credits to CWilso and dalatant
+  autoCorrelateAudioData(time: any): number {
+
+    // Credits to CWilso and dalatantœ
 
     let searchSize = this.analyser.frequencyBinCount * 0.5; // we only need to compare audio data up to half way point
     let sampleRate = this.audioCtx.sampleRate;
@@ -102,10 +121,148 @@ export class ListenComponent implements OnInit {
     let tolerance = 0.001;
     let rms = 0;
     let rmsMin = 0.008;
-    let assesssedStringsInLastFrame;
+    let assesssedStringsInLastFrame = this.assessedStringsInLastFrame;
 
     // fill up the data
     this.analyser.getFloatTimeDomainData(this.freqArray)
+
+    // root-mean-square (rms)
+    // amount of signal in the buffer
+    for (let val of this.freqArray) {
+      rms += val * val;
+    }
+
+    rms = Math.sqrt(rms / this.freqArray.length);
+
+    // little signal in buffer, return to quit
+    if (rms < rmsMin)
+      return 0;
+
+    // check for new string if vol goes up
+    // false, assume string is same as last frame
+    if (rms > this.lastRms + this.rmsThreshold)
+      this.assessStringsUntilTime = time + 250;
+
+    if (time < this.assessStringsUntilTime) {
+    
+      // check each string and calc which is most likely candidate for current string being tuned
+      // based on difference to the "perfect" tuning.
+      for (let note of this.currentInstrument.tuningOctaves) {
+        
+        offsetKey = this.currentKeys[note];
+        offset = this.currentTuning[note].offset;
+        difference = 0;
+      
+        // reset how often string came out as closest
+        if (assesssedStringsInLastFrame === false)
+          this.currentTuning[offsetKey].difference = 0;
+
+        // peak is now calculated
+        // start assessing sample based on peak
+        // step through for this string comparing it to a
+        // "perfect wave" for this string.
+        for (let i = 0; i < searchSize; i++) {
+          difference += Math.abs(this.freqArray[i] - this.freqArray[i + offset]);
+        }
+
+        difference /= searchSize;
+
+        // weight difference by freq.
+        // lower strings get, less preferential treatment (higher offset vals)
+        // harmonics can mess things up nicely
+        // course correct for harmonics
+
+        this.currentTuning[offsetKey].difference += (difference * offset);
+      }
+
+    } else {
+      this.assessedStringsInLastFrame = false;
+    }
+
+      // if you don't reasses strings,
+      // order by string with largest num of matches
+      if (assesssedStringsInLastFrame === true && this.assessedStringsInLastFrame === false) {
+        this.currentKeys.sort(this.sortStringKeysByDifference);
+      }
+
+
+      // top candidate in string set,
+      // figure out what actual offset is from intended target
+      // make full sweep from offset - 10 -> offset + 10
+      // see how long it takes for this wave to repeat
+      // that will be our *actual* freq
+      let searchRange = 10;
+      let assumedString = this.currentTuning[this.currentKeys[0]];
+      let searchStart = assumedString.offset - searchRange;
+      let searchEnd = assumedString.offset + searchRange;
+      let actualFrequency = assumedString.offset;
+      let smallestDifference = Number.POSITIVE_INFINITY;
+
+      for (let s = searchStart; s < searchEnd; s++) {
+
+        difference = 0;
+
+        // for each iteration calc difference of every element of the array
+        // data in buffer shoulbe PCM, vals ranging from -1 to 1
+        // perfect match = they cancel out
+        // real data, so we'll be looking for small amounts
+        // below tolerance = perfect match
+        //  else, go smallest
+        // OR curve match on the data
+        for (let i = 0; i < searchSize; i++) {
+          difference += Math.abs(this.freqArray[i] - this.freqArray[i + s]);
+        }
+
+        difference /= searchSize;
+
+        if (difference < smallestDifference) {
+          smallestDifference = difference;
+          actualFrequency = s;
+        }
+
+        if (difference < tolerance) {
+          actualFrequency = s;
+          break;
+        }
+      }
+
+      this.lastRms = rms;
+      
+      return this.audioCtx.sampleRate / actualFrequency;
+
+  }
+
+  dispatchAudioData(time: any): void {
+    
+    // Setup next pass here
+    // could return early from pass if not a lot of data
+    if (this.sendingAudioData)
+      requestAnimationFrame(this.dispatchAudioData);
+
+    let frequency = this.autoCorrelateAudioData(time);
+
+    if (frequency === 0) {
+      return;
+    }
+
+    // convert most active freq. to linear, based on A440
+    let dominantFrequency = Math.log2(frequency / 440);
+
+    // figure out how many semitones that equates to
+    let semitonesFromA4 = 12 * dominantFrequency;
+
+    // Octave is A440 for 4, start there
+    // adjust by num of semitones
+    // We're at A, we only need 3 more to push up to octave 5
+    // and 9 to drop us to 3.
+    let octave = 4 + ((9 + semitonesFromA4) / 12);
+    octave = Math.floor(octave);
+
+    // The note is 0 for A, all the way up to 11 for G#
+    let note = (12 + (Math.round(semitonesFromA4) % 12)) % 12;
+
+    // send to to relevant area
+
   }
 
   captureFreq(): void {
@@ -171,9 +328,9 @@ export class ListenComponent implements OnInit {
       // tslint:disable-next-line: no-non-null-assertion
       userFreqResponseOutput!.innerHTML += `${latestFreq} Hz<br>`;
       // }
-      this.i++;
-      if (this.i === this.analyser.fftSize / 64) {
-        this.i = 0;
+      this.updateFrames++;
+      if (this.updateFrames === this.analyser.fftSize / 64) {
+        this.updateFrames = 0;
         // tslint:disable-next-line: no-non-null-assertion
         userFreqResponseOutput!.innerHTML = '';
       }
@@ -201,9 +358,10 @@ export class ListenComponent implements OnInit {
 
       // TODO: Get stream controls to work??? - BiquadFilter or something else is playing audio over the stream
       navigator.mediaDevices.getUserMedia({audio: true, video: false}) // make video: true to add video stream
-      .then((stream) => {
+      .then( (stream) => {
         // this.onSuccess(stream)
         /* use the stream */
+        this.sendingAudioData = true;
         this.stream = stream;
         console.log(this.stream);
         this.captureFreq();
