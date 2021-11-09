@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Instrument, INSTRUMENTS } from '../instrument';
+import { INSTRUMENTS } from '../instrument';
 import { Note } from '../note';
-import { Chord } from '../chord';
-import { Scale, eQScale } from '../scale';
-import adapter from 'webrtc-adapter';
+import { eQScale } from '../scale';
+import { Tone, Tuning } from '../tuning';
 
 @Component({
   selector: 'app-listen',
@@ -14,8 +13,8 @@ import adapter from 'webrtc-adapter';
 export class ListenComponent implements OnInit {
   popularInstruments = INSTRUMENTS; // INSTRUMENTS contains some default tunings
   currentInstrument = this.popularInstruments[0];   // Default to guitar
-  currentTuning:any;
-  currentKeys:any;
+  currentTuning: Tuning;
+  currentKeys:string[];
 
   // 0th pos. of EqualTemperedScale
   currentNote = Object.assign(new Note('A4', 440.00, 78.41));
@@ -46,33 +45,171 @@ export class ListenComponent implements OnInit {
   assessStringsUntilTime = 0;
 
   constructor() {
+    this.dispatchAudioData = this.dispatchAudioData.bind(this);
+    this.sortStringKeysByDifference = this.sortStringKeysByDifference.bind(this);
+    this.onVisibilityChange = this.onVisibilityChange.bind(this);
+
     this.equalTempScale = new eQScale();
+    this.currentTuning = new Tuning();
+    this.currentKeys = [];
+    // this.captureFreq();
     this.captureAudio();
 
-    for (let note of this.currentInstrument.tuningOctaves) {
-      this.currentTuning[note] = {
-        offset: Math.round(this.audioCtx.sampleRate / this.equalTempScale.findFrequencyUsingNote(note)),
-        difference: 0
-      }
-    }
-    this.currentKeys = Object.keys(this.currentTuning);
+
   }
 
   ngOnInit(): void {
-    // ** TEST */
-    // console.log(`test Scale methods:`);
-    // console.log(this.equalTempScale.getAllFrequencies());
-    // console.log(this.equalTempScale.getNoteFreqPairs());
-    // console.log(this.equalTempScale.getAllNoteNames());
-    // console.log(this.equalTempScale.findNoteUsingFrequency("29.14"));
-    // console.log(this.equalTempScale.findFrequencyUsingNote("A#0/Bb0"));
+    //
 
   }
+
+     /**
+    * captureAudio()
+    * @returns Initialize the audio stream
+    */
+  captureAudio(): void {
+
+    // const range:any = document.getElementById('audioVol');
+    // const freqResponseOutput = document.querySelector('.freq-response-output');
+
+    // getUserMedia block - grab stream
+    // put it into a MediaStreamAudioSourceNode
+    if (navigator.mediaDevices) {
+      console.log('getUserMedia supported.');
+
+      // TODO: Get stream controls to work??? - BiquadFilter or something else is playing audio over the stream
+      navigator.mediaDevices.getUserMedia({audio: true, video: false}) // make video: true to add video stream
+      .then( (stream) => {
+        // this.onSuccess(stream)
+        /* use the stream */
+        this.sendingAudioData = true;
+        this.stream = stream;
+        this.captureFreq();
+
+        requestAnimationFrame(this.dispatchAudioData);
+
+        const myAudio: any = document.getElementById('player');
+        myAudio.srcObject = stream;
+        // stream controls on startup
+        // myAudio.onloadedmetadata = () => {
+        //   myAudio.autoplay = false;
+        //   myAudio.muted = true;
+        //   myAudio.pause();
+        // };
+
+        // LIST AUDIO DEVICES ===================
+        // const audioDevices = document.getElementById('.audioDevices');
+        // const listOfDevices: string[] = [];
+        // navigator.mediaDevices.enumerateDevices()
+        // .then((devices) => {
+        //   devices.forEach( (device) => {
+        //     // List only default devices used
+        //     if (device !== undefined && device.label.includes('Default')) {
+        //       listOfDevices.push(device.kind + ': ' + device.label);
+        //     }
+        //   });
+        //   // Below media controls, tell user audio input and output devices
+        //   // tslint:disable-next-line: no-non-null-assertion
+        //   audioDevices!.innerHTML =
+        //     `<u>Listening and playing through:</u>
+        //     <br> ${listOfDevices[0]} <br> ${listOfDevices[1]}`;
+        // })
+        // .catch( (err) => {
+        //   console.log(err.name + ': ' + err.message);
+        // });
+        // --LIST AUDIO DEVICES ===================
+
+    })
+    .catch( (err) => {
+      /* handle the error */
+      console.error('The following gUM error occured: ' + err);
+      // console.log(err.name + ": " + err.message);
+    });
+
+    } else {
+      console.error('getUserMedia not supported on your browser!');
+    }
+
+  } // --captureAudio()
+
+  captureFreq(): void {
+    const userFreqResponseOutput = document.getElementById('user-freq-response-output');
+
+    // INIT
+    this.audioCtx = new AudioContext();
+    this.source = this.audioCtx.createMediaStreamSource(this.stream); // microphone
+    this.analyser = this.audioCtx.createAnalyser();
+    this.gainNode = this.audioCtx.createGain();
+    // Analyser + freq data Array
+    
+    // INIT gainNode and analyser values
+    this.gainNode.gain.value = 0;
+    this.analyser.fftSize = 2048;
+    this.analyser.smoothingTimeConstant = 0;
+
+    // INIT freqArray buffer
+    const bufferLength = this.analyser.frequencyBinCount;
+    this.freqArray = new Float32Array(bufferLength);
+
+    // INIT connections
+    this.source.connect(this.analyser);
+    this.analyser.connect(this.gainNode);
+    this.gainNode.connect(this.audioCtx.destination);
+    
+    // this.analyser.getFloatFrequencyData(this.freqArray);
+
+    // INIT currentTuning with currentInstrument's tune
+    for (let note of this.currentInstrument.tuningOctaves) {
+      let newTone = new Tone();
+      newTone.setNote(note);
+      newTone.setOffset(Math.round(this.audioCtx.sampleRate / this.equalTempScale.findFrequencyUsingNote(note)));
+      newTone.setDifference(0);
+      this.currentTuning.addNote(newTone);
+    }
+    console.log(this.currentTuning);
+    // INIT our set of note Keys
+    this.currentKeys = this.currentTuning.getNotes();
+    
+    const getAverageVolume = (a: number[]): number => {
+      const length = a.length;
+      let values = 0;
+      for (let i = 0; i < length; i++) {
+        values += a[i];
+      }
+      return values / length;
+    };
+
+    // const update = () => {
+    //   // sched the next update
+    //   // requestAnimationFrame(update);
+
+    //   // get new freq data
+    //   this.analyser.getFloatFrequencyData(this.freqArray);
+    //   const latestFreq: number = getAverageVolume(this.freqArray);
+
+
+    //   console.log(`latestFreq: ${latestFreq}`);
+
+    //   // update visuals
+    //   // for(var i = 0; i < bufferLength; i++) {
+    //   // tslint:disable-next-line: no-non-null-assertion
+    //   userFreqResponseOutput!.innerHTML += `${latestFreq} Hz<br>`;
+    //   // }
+    //   this.updateFrames++;
+    //   if (this.updateFrames === this.analyser.fftSize / 64) {
+    //     this.updateFrames = 0;
+    //     // tslint:disable-next-line: no-non-null-assertion
+    //     userFreqResponseOutput!.innerHTML = '';
+    //   }
+    // };
+    // update();
+
+  } // --captureFreq()
 
   calculateNoteFromFrequency(freq: number): string {
 
     return this.equalTempScale.findNoteUsingFrequency(freq.toString());
-  }
+  } // --calculateNoteFromFrequency()
 
   /**
    * calculateNote()
@@ -106,7 +243,7 @@ export class ListenComponent implements OnInit {
   } // --calculateNote()
 
   sortStringKeysByDifference(a:string, b:string): number {
-    return this.currentTuning[a].difference - this.currentTuning[b].difference;
+    return this.currentTuning.findNote(a).getDifference() - this.currentTuning.findNote(b).getDifference();
   }
 
   autoCorrelateAudioData(time: any): number {
@@ -114,7 +251,7 @@ export class ListenComponent implements OnInit {
     // Credits to CWilso and dalatantœ
 
     let searchSize = this.analyser.frequencyBinCount * 0.5; // we only need to compare audio data up to half way point
-    let sampleRate = this.audioCtx.sampleRate;
+    // let sampleRate = this.audioCtx.sampleRate;
     let offsetKey = null;
     let offset = 0;
     let difference = 0;
@@ -144,18 +281,22 @@ export class ListenComponent implements OnInit {
       this.assessStringsUntilTime = time + 250;
 
     if (time < this.assessStringsUntilTime) {
+
+      this.assessedStringsInLastFrame = true;
     
       // check each string and calc which is most likely candidate for current string being tuned
       // based on difference to the "perfect" tuning.
       for (let note of this.currentInstrument.tuningOctaves) {
+        let currNote = this.currentTuning.findNote(note);
         
-        offsetKey = this.currentKeys[note];
-        offset = this.currentTuning[note].offset;
+        // offsetKey = note;
+        offset = currNote.getOffset();
+        console.log(offset);
         difference = 0;
       
         // reset how often string came out as closest
         if (assesssedStringsInLastFrame === false)
-          this.currentTuning[offsetKey].difference = 0;
+          this.currentTuning.findNote(note).setDifference(0);
 
         // peak is now calculated
         // start assessing sample based on peak
@@ -171,8 +312,7 @@ export class ListenComponent implements OnInit {
         // lower strings get, less preferential treatment (higher offset vals)
         // harmonics can mess things up nicely
         // course correct for harmonics
-
-        this.currentTuning[offsetKey].difference += (difference * offset);
+        this.currentTuning.findNote(note).setDifference(currNote.getDifference() + (difference * offset));
       }
 
     } else {
@@ -183,6 +323,7 @@ export class ListenComponent implements OnInit {
       // order by string with largest num of matches
       if (assesssedStringsInLastFrame === true && this.assessedStringsInLastFrame === false) {
         this.currentKeys.sort(this.sortStringKeysByDifference);
+        // NOTE: Doesn't not enter this statement yet
       }
 
 
@@ -192,11 +333,13 @@ export class ListenComponent implements OnInit {
       // see how long it takes for this wave to repeat
       // that will be our *actual* freq
       let searchRange = 10;
-      let assumedString = this.currentTuning[this.currentKeys[0]];
-      let searchStart = assumedString.offset - searchRange;
-      let searchEnd = assumedString.offset + searchRange;
-      let actualFrequency = assumedString.offset;
+      let assumedString = this.currentTuning.findNote(this.currentKeys[0]);
+      let searchStart = assumedString.getOffset() - searchRange;
+      let searchEnd = assumedString.getOffset() + searchRange;
+      let actualFrequency = assumedString.getOffset();
       let smallestDifference = Number.POSITIVE_INFINITY;
+      // console.log(assumedString);
+      // console.log(`searchRange: ${searchRange}, searchSize: ${searchSize}, searchEnd: ${searchEnd}, actualFrequency: ${actualFrequency}, smallestDiff: ${smallestDifference}\n`)
 
       for (let s = searchStart; s < searchEnd; s++) {
 
@@ -227,7 +370,8 @@ export class ListenComponent implements OnInit {
       }
 
       this.lastRms = rms;
-      
+
+      console.log(this.currentTuning);
       return this.audioCtx.sampleRate / actualFrequency;
 
   }
@@ -236,7 +380,7 @@ export class ListenComponent implements OnInit {
     
     // Setup next pass here
     // could return early from pass if not a lot of data
-    if (this.sendingAudioData)
+    if (this.sendingAudioData === true)
       requestAnimationFrame(this.dispatchAudioData);
 
     let frequency = this.autoCorrelateAudioData(time);
@@ -262,207 +406,45 @@ export class ListenComponent implements OnInit {
     let note = (12 + (Math.round(semitonesFromA4) % 12)) % 12;
 
     // send to to relevant area
+    // console.log(this.currentTuning);
+    console.log('frequency: %d, octave: %d, note: %d\n', frequency, octave, note);
 
   }
 
-  captureFreq(): void {
-    const userFreqResponseOutput = document.getElementById('user-freq-response-output');
+  attached() {
 
-    this.audioCtx = new AudioContext();
-    this.source = this.audioCtx.createMediaStreamSource(this.stream);
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
 
-    // Analyser + freq data Array
-    this.analyser = this.audioCtx.createAnalyser();
-    // this.analyser.minDecibels = -100;
-    // this.analyser.maxDecibels = -30;
-    this.analyser.smoothingTimeConstant = 0;
-    this.analyser.fftSize = 2048;
-    const bufferLength = this.analyser.frequencyBinCount;
-    // this.myFrequencyArray = new Float32Array(bufferLength);
-    // this.analyser.getFloatFrequencyData(this.myFrequencyArray);
-
-    // Biquadfilter
-    // const biquadFilter = this.audioCtx.createBiquadFilter();
-    // biquadFilter.type = "lowpass";
-    // biquadFilter.frequency.value = 1000;
-    // this.source.connect(biquadFilter); // TODO: this was breaking play/pause/mute of video player
-    // biquadFilter.connect(this.audioCtx.destination);
-
-    // GainNode
-    this.gainNode = this.audioCtx.createGain();
-    this.gainNode.gain.value = 0;
-
-
-    this.source.connect(this.analyser);
-    this.analyser.connect(this.audioCtx.destination);
-    this.freqArray = new Float32Array(bufferLength);
-    this.analyser.getFloatFrequencyData(this.freqArray);
-    // console.log(this.analyser);
-
-    // for(var i = 0; i < bufferLength; i++) {
-    //   userFreqResponseOutput!.innerHTML += `${this.freqArray[i]}, `;
-    // }
-
-    const getAverageVolume = (a: number[]): number => {
-      const length = a.length;
-      let values = 0;
-      for (let i = 0; i < length; i++) {
-        values += a[i];
-      }
-      return values / length;
-    };
-
-    const update = () => {
-      // sched the next update
-      // requestAnimationFrame(update);
-
-      // get new freq data
-      this.analyser.getFloatFrequencyData(this.freqArray);
-      const latestFreq: number = getAverageVolume(this.freqArray);
-
-
-      console.log(`latestFreq: ${latestFreq}`);
-
-      // update visuals
-      // for(var i = 0; i < bufferLength; i++) {
-      // tslint:disable-next-line: no-non-null-assertion
-      userFreqResponseOutput!.innerHTML += `${latestFreq} Hz<br>`;
-      // }
-      this.updateFrames++;
-      if (this.updateFrames === this.analyser.fftSize / 64) {
-        this.updateFrames = 0;
-        // tslint:disable-next-line: no-non-null-assertion
-        userFreqResponseOutput!.innerHTML = '';
-      }
-    };
-
-    update();
+    this.onVisibilityChange();
   }
 
-   /**
-    * captureAudio()
-    * @returns Initialize the audio stream
-    */
-  captureAudio(): void {
+  detached() {
+    this.sendingAudioData = false;
+  }
 
-    // const range:any = document.getElementById('audioVol');
-    // const freqResponseOutput = document.querySelector('.freq-response-output');
+  onVisibilityChange(): void {
 
-    // const magResponseOutput = new Float32Array(5);
-    // const phaseResponseOutput = new Float32Array(5);
+    if (document.hidden) {
+      this.sendingAudioData = false;
 
-    // getUserMedia block - grab stream
-    // put it into a MediaStreamAudioSourceNode
-    if (navigator.mediaDevices) {
-      console.log('getUserMedia supported.');
-
-      // TODO: Get stream controls to work??? - BiquadFilter or something else is playing audio over the stream
-      navigator.mediaDevices.getUserMedia({audio: true, video: false}) // make video: true to add video stream
-      .then( (stream) => {
-        // this.onSuccess(stream)
-        /* use the stream */
-        this.sendingAudioData = true;
-        this.stream = stream;
-        console.log(this.stream);
-        this.captureFreq();
-
-        const myAudio: any = document.getElementById('player');
-        myAudio.srcObject = stream;
-        // stream controls on startup
-        myAudio.onloadedmetadata = () => {
-          myAudio.autoplay = false;
-          myAudio.muted = true;
-          myAudio.pause();
-        };
-
-        // LIST AUDIO DEVICES ===================
-        const audioDevices = document.getElementById('.audioDevices');
-        const listOfDevices: string[] = [];
-        navigator.mediaDevices.enumerateDevices()
-        .then((devices) => {
-          devices.forEach( (device) => {
-            // List only default devices used
-            if (device !== undefined && device.label.includes('Default')) {
-              listOfDevices.push(device.kind + ': ' + device.label);
-            }
-          });
-          // Below media controls, tell user audio input and output devices
-          // tslint:disable-next-line: no-non-null-assertion
-          audioDevices!.innerHTML =
-            `<u>Listening and playing through:</u>
-            <br> ${listOfDevices[0]} <br> ${listOfDevices[1]}`;
-        })
-        .catch( (err) => {
-          console.log(err.name + ': ' + err.message);
+      if (this.stream) {
+        //Chrome 47+
+        this.stream.getAudioTracks().forEach((track:any) => {
+          if ('stop' in track) {
+            track.stop();
+          }
         });
-        // --LIST AUDIO DEVICES ===================
 
-        // Create a MediaStreamAudioSourceNode
-        // Feed the HTMLMediaElement into it
-        // let audioCtx = new AudioContext();
-        // let source = audioCtx.createMediaStreamSource(stream);
+        //Chrome 46-
+        if ('stop' in this.stream) {
+          this.stream.stop();
+        }
+      }
 
-        // TEST FREQUENCY ===================
-        // this.analyser = audioCtx.createAnalyser();
-
-        // this.analyser.fftSize = 256;
-        // const bufferLength = this.analyser.frequencyBinCount;
-        // this.myFrequencyArray = new Float32Array(bufferLength);
-        // this.analyser.getFloatFrequencyData(this.myFrequencyArray);
-
-        // // source.connect(this.analyser);
-        // this.analyser.connect(audioCtx.destination);
-
-        // var freqArray = new Uint8Array(bufferLength);
-        // this.analyser.getByteFrequencyData(freqArray);
-        // console.log(this.analyser);
-
-        // for(var i = 0; i < bufferLength; i++) {
-        //   // userFreqResponseOutput!.innerHTML += `${this.myFrequencyArray[i]}, `;
-        // }
-        // --TEST FREQUENCY ===================
-
-
-        // CREATE BIQUAD FILTER ===================
-        // const biquadFilter = audioCtx.createBiquadFilter();
-        // biquadFilter.type = "lowpass";
-        // biquadFilter.frequency.value = 1000;
-        // biquadFilter.gain.value = Number(range!.value);
-        // // source.connect(biquadFilter); // TODO: this was breaking play/pause/mute of video player
-        // biquadFilter.connect(audioCtx.destination);
-
-        // connects input range to the filter strength
-        // range.oninput = function() {
-        //   biquadFilter.gain.value = Number(range!.value);
-        // }
-
-        // CREATE BIQUAD FILTER ===================
-
-        /**
-         * calcUserFrequencyResponse
-         */
-        // function calcUserFrequencyResponse() {
-        //   biquadFilter.getFrequencyResponse(myFrequencyArray,magResponseOutput,phaseResponseOutput);
-        //   for (let i = 0; i <= myFrequencyArray.length-1;i++){
-        //       let listItem = document.createElement('li');
-        //       listItem.innerHTML = '<strong>' + myFrequencyArray[i] + 'Hz</strong>: Magnitude ' +
-        //          magResponseOutput[i] + ', Phase ' + phaseResponseOutput[i] + ' radians.';
-        //
-        //       freqResponseOutput!.appendChild(listItem);
-        //   }
-        // } // --calcUserFrequencyResponse();
-
-    })
-    .catch( (err) => {
-      /* handle the error */
-      console.log('The following gUM error occured: ' + err);
-      // console.log(err.name + ": " + err.message);
-    });
-
+      this.stream = null;
     } else {
-      console.log('getUserMedia not supported on your browser!');
+      this.captureAudio;
     }
-
-  } // --captureAudio()
+  }
 
 } // --ListenComponent();
