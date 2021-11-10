@@ -19,7 +19,7 @@ export class ListenComponent implements OnInit {
   // 0th pos. of EqualTemperedScale
   currentNote = Object.assign(new Note('A4', 440.00, 78.41));
 
-  // test value
+  // default values
   notation = '';
   frequency = 0;
   wavelength = 0;
@@ -38,7 +38,7 @@ export class ListenComponent implements OnInit {
   // freqBuffer
   freqArray: any;
   updateFrames = 0;
-  // audio buffer stuff
+  // audio buffer values
   lastRms = 0;
   rmsThreshold = 0.006;
   assessedStringsInLastFrame = false;
@@ -52,7 +52,6 @@ export class ListenComponent implements OnInit {
     this.equalTempScale = new EQScale();
     this.currentTuning = new Tuning();
     this.currentKeys = [];
-    // this.captureFreq();
     this.captureAudio();
 
 
@@ -102,9 +101,10 @@ export class ListenComponent implements OnInit {
         // const listOfDevices: string[] = [];
         // navigator.mediaDevices.enumerateDevices()
         // .then((devices) => {
+        //   console.log(devices);
         //   devices.forEach( (device) => {
         //     // List only default devices used
-        //     if (device !== undefined && device.label.includes('Default')) {
+        //     if (device !== undefined && device.deviceId.includes('default')) {
         //       listOfDevices.push(device.kind + ': ' + device.label);
         //     }
         //   });
@@ -132,7 +132,6 @@ export class ListenComponent implements OnInit {
   } // --captureAudio()
 
   captureFreq(): void {
-    const userFreqResponseOutput = document.getElementById('user-freq-response-output');
 
     // INIT
     this.audioCtx = new AudioContext();
@@ -145,7 +144,6 @@ export class ListenComponent implements OnInit {
     this.gainNode.gain.value = 0;
     this.analyser.fftSize = 2048;
     this.analyser.smoothingTimeConstant = 0;
-
     // INIT freqArray buffer
     const bufferLength = this.analyser.frequencyBinCount;
     this.freqArray = new Float32Array(bufferLength);
@@ -155,8 +153,6 @@ export class ListenComponent implements OnInit {
     this.analyser.connect(this.gainNode);
     this.gainNode.connect(this.audioCtx.destination);
     
-    // this.analyser.getFloatFrequencyData(this.freqArray);
-
     // INIT currentTuning with currentInstrument's tune
     for (let note of this.currentInstrument.tuningOctaves) {
       let newTone = new Tone();
@@ -168,14 +164,14 @@ export class ListenComponent implements OnInit {
     // INIT our set of note Keys
     this.currentKeys = this.currentTuning.getNotes();
     
-    const getAverageVolume = (a: number[]): number => {
-      const length = a.length;
-      let values = 0;
-      for (let i = 0; i < length; i++) {
-        values += a[i];
-      }
-      return values / length;
-    };
+    // const getAverageVolume = (a: number[]): number => {
+    //   const length = a.length;
+    //   let values = 0;
+    //   for (let i = 0; i < length; i++) {
+    //     values += a[i];
+    //   }
+    //   return values / length;
+    // };
 
     // const update = () => {
     //   // sched the next update
@@ -188,26 +184,12 @@ export class ListenComponent implements OnInit {
 
     //   console.log(`latestFreq: ${latestFreq}`);
 
-    //   // update visuals
-    //   // for(var i = 0; i < bufferLength; i++) {
-    //   // tslint:disable-next-line: no-non-null-assertion
-    //   userFreqResponseOutput!.innerHTML += `${latestFreq} Hz<br>`;
-    //   // }
-    //   this.updateFrames++;
-    //   if (this.updateFrames === this.analyser.fftSize / 64) {
-    //     this.updateFrames = 0;
-    //     // tslint:disable-next-line: no-non-null-assertion
-    //     userFreqResponseOutput!.innerHTML = '';
+
     //   }
     // };
     // update();
 
   } // --captureFreq()
-
-  calculateNoteFromFrequency(freq: number): string {
-
-    return this.equalTempScale.findNoteUsingFrequency(freq.toString());
-  } // --calculateNoteFromFrequency()
 
   /**
    * calculateNote()
@@ -237,7 +219,7 @@ export class ListenComponent implements OnInit {
     mysteryNote = nFreq.toString();
 
     // Format Note name and freq (Hz)
-    return `${this.equalTempScale.findNoteUsingFrequency(mysteryNote)} (${mysteryNote} Hz)`;;
+    return `${this.equalTempScale.findNoteUsingFrequency(mysteryNote).Note} (${mysteryNote} Hz)`;
   } // --calculateNote()
 
   sortStringKeysByDifference(a:string, b:string): number {
@@ -373,6 +355,7 @@ export class ListenComponent implements OnInit {
   }
 
   dispatchAudioData(time: any): void {
+    const userFreqResponseOutput = document.getElementById('user-freq-response-output');
     
     // Setup next pass here
     // could return early from pass if not a lot of data
@@ -401,15 +384,19 @@ export class ListenComponent implements OnInit {
     // The note is 0 for A, all the way up to 11 for G#
     let note = (12 + (Math.round(semitonesFromA4) % 12)) % 12;
 
-    // send to to relevant area
-    // console.log(this.currentTuning);
+    // Send to to relevant area
     let letterNote = StandardNotes[note];
-    console.log('frequency: %d, note/octave: %s%d, note: %d\n', frequency, letterNote, octave, note);
+    // console.log('frequency: %d, note/octave: %s%d, note: %d\n', frequency, letterNote, octave, note);
     let closestFreq = Math.round(frequency * 100) / 100;
-    console.log(closestFreq.toString());
-    // console.log(this.equalTempScale.findNoteUsingFrequency(closestFreq.toString()));
-  
+    // console.log(closestFreq.toString());
 
+    const latestFreq = letterNote+octave;
+    userFreqResponseOutput!.innerHTML += `${latestFreq} (${closestFreq}Hz)<br>`;
+    this.updateFrames++;
+    if (this.updateFrames === this.analyser.fftSize / 128) {
+      this.updateFrames = 0;
+      userFreqResponseOutput!.innerHTML = '';
+    }
   }
 
   attached() {
@@ -444,7 +431,7 @@ export class ListenComponent implements OnInit {
 
       this.stream = null;
     } else {
-      this.captureAudio;
+      this.captureAudio();
     }
   }
 

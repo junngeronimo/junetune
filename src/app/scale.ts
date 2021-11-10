@@ -101,7 +101,7 @@ export class Scale {
 export class EQScale extends Scale {
 
   constructor() {
-    super()
+    super();
     // init with the Equal Temperament Scale
     this.notes =  {
       "49": {

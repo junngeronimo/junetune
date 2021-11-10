@@ -13,8 +13,6 @@
         <div class="px-4 py-6 sm:px-0">
             <div class="border-4 border-gray-200 rounded-lg h-112 flex-row space-y-2 px-2 py-2">
                 
-                <!-- DISPLAYING FREQUENCY TO NOTE CALC HERE -->
-
                 <!-- DISPLAYING Standard Tuning specification -->
                 <h2 class="font-semibold underline">Standard Tuning: </h2>
                 <p class="px-6">{{currentNote.notation}}, frequency: {{currentNote.frequency}} Hz</p>
@@ -54,14 +52,14 @@
                 <br>
 
                 <!-- Display user's true frequency -->    
-                <p>Your frequency response: </p>
-                <form>
-                    <p id="user-freq-response-output">
+                <div class="text-center">
+                    <p>Your frequency response: </p>
+                    <p class="flexbox" id="user-freq-response-output">
                         
-                        {{analyser ? analyser.fftSize : "" }}
+                        <!-- {{analyser ? analyser.fftSize : "" }} -->
                     
                     </p>
-                </form>
+                </div>
 
             </div>
         </div>
