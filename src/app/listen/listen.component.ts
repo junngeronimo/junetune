@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { INSTRUMENTS } from '../instrument';
 import { Note } from '../note';
-import { eQScale } from '../scale';
+import { EQScale, StandardNotes } from '../scale';
 import { Tone, Tuning } from '../tuning';
 
 @Component({
@@ -49,7 +49,7 @@ export class ListenComponent implements OnInit {
     this.sortStringKeysByDifference = this.sortStringKeysByDifference.bind(this);
     this.onVisibilityChange = this.onVisibilityChange.bind(this);
 
-    this.equalTempScale = new eQScale();
+    this.equalTempScale = new EQScale();
     this.currentTuning = new Tuning();
     this.currentKeys = [];
     // this.captureFreq();
@@ -123,7 +123,6 @@ export class ListenComponent implements OnInit {
     .catch( (err) => {
       /* handle the error */
       console.error('The following gUM error occured: ' + err);
-      // console.log(err.name + ": " + err.message);
     });
 
     } else {
@@ -166,7 +165,6 @@ export class ListenComponent implements OnInit {
       newTone.setDifference(0);
       this.currentTuning.addNote(newTone);
     }
-    console.log(this.currentTuning);
     // INIT our set of note Keys
     this.currentKeys = this.currentTuning.getNotes();
     
@@ -291,7 +289,6 @@ export class ListenComponent implements OnInit {
         
         // offsetKey = note;
         offset = currNote.getOffset();
-        console.log(offset);
         difference = 0;
       
         // reset how often string came out as closest
@@ -371,7 +368,6 @@ export class ListenComponent implements OnInit {
 
       this.lastRms = rms;
 
-      console.log(this.currentTuning);
       return this.audioCtx.sampleRate / actualFrequency;
 
   }
@@ -407,7 +403,12 @@ export class ListenComponent implements OnInit {
 
     // send to to relevant area
     // console.log(this.currentTuning);
-    console.log('frequency: %d, octave: %d, note: %d\n', frequency, octave, note);
+    let letterNote = StandardNotes[note];
+    console.log('frequency: %d, note/octave: %s%d, note: %d\n', frequency, letterNote, octave, note);
+    let closestFreq = Math.round(frequency * 100) / 100;
+    console.log(closestFreq.toString());
+    // console.log(this.equalTempScale.findNoteUsingFrequency(closestFreq.toString()));
+  
 
   }
 

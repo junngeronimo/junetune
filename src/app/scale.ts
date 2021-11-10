@@ -1,5 +1,18 @@
 import { Note } from './note';
-
+export enum StandardNotes {
+  A = 0,
+  "A#/Bb" = 1,
+  B = 2,
+  C = 3,
+  "C#/Db" = 4,
+  D = 5,
+  "D#/Eb" = 6,
+  E = 7,
+  F = 8,
+  "F#/Gb" = 9,
+  G = 10,
+  "G#/Ab" = 11,
+}
 
 export class Scale {
   notes:any;
@@ -54,16 +67,17 @@ export class Scale {
 
   // find a note name using frequency value
   findNoteUsingFrequency(freq: string) {
-    return this.notes[freq].Note;
+    return this.notes[freq];
   }
 
   // update reversed key/value pairs and find note
   findFrequencyUsingNote(note: string) {
+    // this.reverseNoteObjects();
     return this.reverseNotes[note];
   }
 
   // reverse key/value pairs
-  reverseNoteObjects():any[] {
+  private reverseNoteObjects():any[] {
     return Object.entries(this.notes).reduce((ret:any, entry) => {
       const [key, value]:any = entry;
       ret[value] = key;
@@ -84,7 +98,7 @@ export class Scale {
       // }: 
   // }}
 
-export class eQScale extends Scale {
+export class EQScale extends Scale {
 
   constructor() {
     super()
@@ -524,26 +538,7 @@ export class eQScale extends Scale {
       }
     };
     this.getNoteFreqPairs();
-    // this.reverseNotes = this.reverseNoteObjects();
-  }
-
-  // getAllFrequencies() {
-  //   return super.getAllFrequencies()
-  // }
-
-  // getAllNotes() {
-  //   return super.getNoteNames()
-  // }
-
-  // findNoteUsingFrequency(freq:string) {
     
-  //   return this.notes[freq];
-  // }
-
-  // update reversed key/value pairs and find note
-  // findFrequencyUsingNote(note: string) {
-  //   this.reverseNotes = super.reverseNoteObjects();
-  //   return this.reverseNotes[note];
-  // }
+  }
 
 }

@@ -6,17 +6,6 @@ export interface Instrument {
     tuningOctaves: string[];
 }
 
-export interface Tuning {
-    notes: Tone[];
-}
-
-export interface Tone {
-    note: {
-        offset: number,
-        difference: number,
-    }
-}
-
 export const INSTRUMENTS: Instrument[] = [
     {
         id: 11,
