@@ -163,15 +163,6 @@ export class ListenComponent implements OnInit {
     }
     // INIT our set of note Keys
     this.currentKeys = this.currentTuning.getNotes();
-    
-    // const getAverageVolume = (a: number[]): number => {
-    //   const length = a.length;
-    //   let values = 0;
-    //   for (let i = 0; i < length; i++) {
-    //     values += a[i];
-    //   }
-    //   return values / length;
-    // };
 
     // const update = () => {
     //   // sched the next update
@@ -212,7 +203,7 @@ export class ListenComponent implements OnInit {
     let nFreq = freqZero * Math.pow(a, nHalfSteps);
     nFreq = Number(nFreq.toFixed(2));
 
-    // Calculate wavelength - TODO audio visualizer?
+    // Calculate wavelength - TODO wavelength irrelevant right now. Maybe for an audio visualizer?
     // const cSpeedOfSound = 345;
     // let nWaveLength = cSpeedOfSound / nFreq;
 
@@ -317,8 +308,6 @@ export class ListenComponent implements OnInit {
       let searchEnd = assumedString.getOffset() + searchRange;
       let actualFrequency = assumedString.getOffset();
       let smallestDifference = Number.POSITIVE_INFINITY;
-      // console.log(assumedString);
-      // console.log(`searchRange: ${searchRange}, searchSize: ${searchSize}, searchEnd: ${searchEnd}, actualFrequency: ${actualFrequency}, smallestDiff: ${smallestDifference}\n`)
 
       for (let s = searchStart; s < searchEnd; s++) {
 
