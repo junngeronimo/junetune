@@ -2,9 +2,25 @@
 
 Web app instrument tuner built with Angular.js.
 
+# Installation
+
+Clone the repo and use npm to install dependencies.
+
+```bash
+npm install 
+```
+
+To run it and automatically open a browser window with the app, use
+
+```bash
+npm start
+```
+
 ## About
 
-Currently in production. Hoping to get incremental progress on this and learn more about each technology I apply to it.
+In it's current state, it will ask you for access to your microphone. You can hear your own input by using the media player as marked. The website describe what it hears in frequency and the closest musical note to the given frequency.
+
+Still in production. Hoping to get incremental progress on this and learn more about each technology I apply to it.
 
 So far, Angular.js and TailwindCSS are the bulk of the learning for this project.
 
